@@ -44,6 +44,7 @@ export class AuthService {
       isNewUser = true;
     }
 
+    
     // Generate JWT
     const token = this.jwtService.sign({
       sub: user.id,
