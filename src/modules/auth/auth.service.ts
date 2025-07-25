@@ -13,7 +13,6 @@ export class AuthService {
   ) {}
 
   async googleLogin(idToken: string) {
-    // Verify the Google ID token
     const ticket = await this.oauthClient.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -25,24 +24,19 @@ export class AuthService {
       throw new UnauthorizedException('Invalid Google token');
     }
 
-    // Check if the user already exists
-    const existingUser = await this.prisma.user.findUnique({
+    // Try to find existing user
+    let user = await this.prisma.user.findUnique({
       where: { email: payload.email },
     });
 
-    if (!existingUser) {
-      throw new UnauthorizedException('Account not allowed');
-    }
-
-    let user = existingUser;
     let isNewUser = false;
 
+    // If user doesn't exist, register a new one
     if (!user) {
-      // Create a new user if not found
       user = await this.prisma.user.create({
         data: {
           email: payload.email,
-          name: payload.name,
+          name: payload.name ?? '',
           picture: payload.picture,
           provider: 'google',
         },
