@@ -1,8 +1,18 @@
-import { Controller, Post, Body, UseGuards, Res } from '@nestjs/common';
-import { Response as ExpressResponse } from 'express';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  Res,
+  Get,
+  Req,
+} from '@nestjs/common';
+import {
+  Response as ExpressResponse,
+} from 'express';
 
 import { AuthService } from './auth.service';
-import { GoogleDto } from './dto/google.dto';
+import { GoogleDto, RequestWithUser } from './dto/google.dto';
 
 import { JwtAuthGuard } from './guards/auth.guard';
 
@@ -15,7 +25,9 @@ export class AuthController {
     @Body() dto: GoogleDto,
     @Res({ passthrough: true }) res: ExpressResponse,
   ) {
-    const token = await this.authService.googleSignIn(dto.code);
+    const { token, isNewUser, user } = await this.authService.googleSignIn(
+      dto.code,
+    );
 
     res.cookie('authToken', token, {
       httpOnly: true,
@@ -25,7 +37,7 @@ export class AuthController {
       path: '/',
     });
 
-    return { success: true };
+    return { success: true, user, isNewUser };
   }
 
   @Post('logout')
@@ -37,5 +49,11 @@ export class AuthController {
       path: '/',
     });
     return { success: true };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@Req() req: RequestWithUser) {
+    return req.user;
   }
 }
