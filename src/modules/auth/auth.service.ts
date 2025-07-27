@@ -5,14 +5,25 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
-  private oauthClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  private oauthClient = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    'http://localhost:3000',
+  );
 
   constructor(
     private jwtService: JwtService,
     private prisma: PrismaService,
   ) {}
 
-  async googleLogin(idToken: string) {
+  async googleSignIn(code: string) {
+    const { tokens } = await this.oauthClient.getToken(code); // exchange code for tokens
+    const idToken = tokens.id_token;
+
+    if (!idToken) {
+      throw new UnauthorizedException('Missing ID token');
+    }
+
     const ticket = await this.oauthClient.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -44,7 +55,6 @@ export class AuthService {
       isNewUser = true;
     }
 
-    
     // Generate JWT
     const token = this.jwtService.sign({
       sub: user.id,
