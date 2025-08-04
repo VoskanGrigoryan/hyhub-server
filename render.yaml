@@ -1,0 +1,13 @@
+# render.yaml
+services:
+  - type: web
+    name: myhub-nest-backend
+    env: node
+    plan: free
+    buildCommand: npm install && npm build
+    startCommand: npm start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000

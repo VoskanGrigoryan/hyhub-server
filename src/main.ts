@@ -9,6 +9,11 @@ async function bootstrap() {
     credentials: true,
   });
 
-  await app.listen(process.env.PORT ?? 8080);
+  app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    next();
+  });
+
+  await app.listen(process.env.PORT ?? 4000);
 }
 bootstrap();
