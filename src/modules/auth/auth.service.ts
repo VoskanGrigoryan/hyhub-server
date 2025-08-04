@@ -8,7 +8,7 @@ export class AuthService {
   private oauthClient = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    'http://localhost:3000',
+    process.env.REDIRECT_URI,
   );
 
   constructor(
@@ -59,7 +59,7 @@ export class AuthService {
     const token = this.jwtService.sign({
       sub: user.id,
       email: user.email,
-    });
+    },{ expiresIn: '7d' }, );
 
     return {
       token,
