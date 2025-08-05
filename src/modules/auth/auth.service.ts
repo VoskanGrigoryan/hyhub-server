@@ -42,7 +42,7 @@ export class AuthService {
 
     let isNewUser = false;
 
-    // If user doesn't exist, register a new one
+    // If user doesn't exist, create a new one
     if (!user) {
       user = await this.prisma.user.create({
         data: {
