@@ -8,7 +8,7 @@ export class AuthService {
   private oauthClient = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    process.env.FRONTEND_URL,
+    process.env.REDIRECT_URI,
   );
 
   constructor(
