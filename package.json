@@ -22,6 +22,7 @@
     "migrate:deploy": "dotenv -e .env.production -- npx prisma migrate deploy"
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/cli": "^11.0.10",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
@@ -29,6 +30,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/terminus": "^11.0.0",
     "@prisma/client": "^6.12.0",
     "class-validator": "^0.14.2",
     "dotenv": "^17.2.1",
