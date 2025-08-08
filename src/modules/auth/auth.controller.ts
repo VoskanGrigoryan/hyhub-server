@@ -16,11 +16,7 @@ import { JwtAuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  private isProd: boolean;
-
-  constructor(private authService: AuthService) {
-    this.isProd = process.env.NODE_ENV === 'production';
-  }
+  constructor(private authService: AuthService) {}
 
   @Post('google')
   async googleLogin(
@@ -34,8 +30,8 @@ export class AuthController {
     res.cookie('authToken', token, {
       httpOnly: true,
       // secure: process.env.NODE_ENV === 'production',
-      secure: !this.isProd,
-      sameSite: this.isProd ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'production', // true in prod, false in dev
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       path: '/',
     });
@@ -49,8 +45,8 @@ export class AuthController {
       httpOnly: true,
       // sameSite: 'none',
       // secure: process.env.NODE_ENV === 'production',
-      secure: !this.isProd,
-      sameSite: this.isProd ? 'none' : 'lax',
+      secure: process.env.NODE_ENV === 'production', // true in prod, false in dev
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
     });
     return { success: true };
