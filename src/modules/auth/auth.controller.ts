@@ -32,7 +32,7 @@ export class AuthController {
     res.cookie('authToken', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       path: '/',
     });
@@ -44,7 +44,7 @@ export class AuthController {
   logout(@Res({ passthrough: true }) res: ExpressResponse) {
     res.clearCookie('authToken', {
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: 'none',
       secure: process.env.NODE_ENV === 'production',
       path: '/',
     });
