@@ -10,15 +10,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  interface CustomResponse {
-    setHeader(name: string, value: string): void;
-  }
-
-  interface NextFunction {
-    (): void;
-  }
-
-  app.use((res: CustomResponse, next: NextFunction) => {
+  app.use((res, next) => {
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     next();
   });
