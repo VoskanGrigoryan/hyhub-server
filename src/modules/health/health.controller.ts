@@ -5,7 +5,7 @@ import {
   HttpHealthIndicator,
 } from '@nestjs/terminus';
 
-@Controller('health')
+@Controller('healthz')
 export class HealthController {
   constructor(
     private health: HealthCheckService,
@@ -13,14 +13,7 @@ export class HealthController {
   ) {}
 
   @Get()
-  @HealthCheck()
   check() {
-    return this.health.check([
-      () =>
-        this.http.pingCheck(
-          'Nest backend on render health check',
-           process.env.RENDER_BASE_URL + '/health',
-        ),
-    ]);
+    return { status: 'ok' };
   }
 }
