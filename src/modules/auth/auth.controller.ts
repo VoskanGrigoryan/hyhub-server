@@ -34,7 +34,7 @@ export class AuthController {
     res.cookie('authToken', token, {
       httpOnly: true,
       // secure: process.env.NODE_ENV === 'production',
-      secure: this.isProd,
+      secure: !this.isProd,
       sameSite: this.isProd ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       path: '/',
@@ -49,7 +49,7 @@ export class AuthController {
       httpOnly: true,
       // sameSite: 'none',
       // secure: process.env.NODE_ENV === 'production',
-      secure: this.isProd,
+      secure: !this.isProd,
       sameSite: this.isProd ? 'none' : 'lax',
       path: '/',
     });
