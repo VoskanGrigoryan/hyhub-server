@@ -7,33 +7,29 @@ import {
   Get,
   Req,
 } from '@nestjs/common';
-import { Response as ExpressResponse } from 'express';
-import { JwtService } from '@nestjs/jwt';
+import { Response as ExpressResponse, Request } from 'express';
 import { AuthService } from './auth.service';
 import { GoogleDto, RequestWithUser } from './dto/google.dto';
-
 import { JwtAuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private jwtService: JwtService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Post('google')
   async googleLogin(
     @Body() dto: GoogleDto,
     @Res({ passthrough: true }) res: ExpressResponse,
+    @Req() req: Request,
   ) {
-    const { token, isNewUser, user } = await this.authService.googleSignIn(
-      dto.code,
-    );
+    const { token, isNewUser, user } = await this.authService.googleSignIn(dto.code);
+
+    const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
 
     res.cookie('authToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: !isLocalhost,
+      sameSite: isLocalhost ? 'lax' : 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       path: '/',
     });
@@ -42,13 +38,16 @@ export class AuthController {
   }
 
   @Post('logout')
-  logout(@Res({ passthrough: true }) res: ExpressResponse) {
+  logout(@Res({ passthrough: true }) res: ExpressResponse, @Req() req: Request) {
+    const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
+
     res.clearCookie('authToken', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: !isLocalhost,
+      sameSite: isLocalhost ? 'lax' : 'none',
       path: '/',
     });
+
     return { success: true };
   }
 
