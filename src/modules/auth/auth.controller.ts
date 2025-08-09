@@ -8,7 +8,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { Response as ExpressResponse } from 'express';
-
+import { JwtService } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { GoogleDto, RequestWithUser } from './dto/google.dto';
 
@@ -16,7 +16,10 @@ import { JwtAuthGuard } from './guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private jwtService: JwtService,
+  ) {}
 
   @Post('google')
   async googleLogin(
@@ -29,8 +32,7 @@ export class AuthController {
 
     res.cookie('authToken', token, {
       httpOnly: true,
-      // secure: process.env.NODE_ENV === 'production',
-      secure: process.env.NODE_ENV === 'production', // true in prod, false in dev
+      secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       path: '/',
@@ -43,9 +45,7 @@ export class AuthController {
   logout(@Res({ passthrough: true }) res: ExpressResponse) {
     res.clearCookie('authToken', {
       httpOnly: true,
-      // sameSite: 'none',
-      // secure: process.env.NODE_ENV === 'production',
-      secure: process.env.NODE_ENV === 'production', // true in prod, false in dev
+      secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
     });

@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import * as cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
 async function bootstrap() {
@@ -10,20 +11,9 @@ async function bootstrap() {
     credentials: true,
   });
 
-  interface Request {
-    [key: string]: any;
-  }
+  app.use(cookieParser());
 
-  interface Response {
-    setHeader(name: string, value: string): void;
-    [key: string]: any;
-  }
-
-  interface NextFunction {
-    (): void;
-  }
-
-  app.use((req: Request, res: Response, next: NextFunction) => {
+  app.use((req, res, next) => {
     res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     next();
   });
