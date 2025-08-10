@@ -22,7 +22,6 @@ async function bootstrap() {
     });
     app.use(cookieParser());
     app.use((req, res, next) => {
-        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
         next();
     });
     await app.listen(process.env.PORT ?? 4000);
