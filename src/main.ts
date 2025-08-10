@@ -7,11 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-     origin: [
-    'http://localhost:3000', // dev
-    'https://localhost:3000', // if you actually use https locally
-    'https://myhub-client.vercel.app', // production
-  ],
+    origin: ['https://localhost:3000', 'https://myhub-client.vercel.app'],
     credentials: true,
   });
 
