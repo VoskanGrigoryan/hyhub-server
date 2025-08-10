@@ -11,13 +11,12 @@ async function bootstrap() {
             'http://localhost:3000',
             'https://localhost:3000',
             'https://myhub-client.vercel.app',
-            /\.vercel\.app$/
         ],
         credentials: true,
     });
     app.use(cookieParser());
     app.use((req, res, next) => {
-        res.setHeader('same-origin-allow-popups');
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
         next();
     });
     await app.listen(process.env.PORT ?? 4000);

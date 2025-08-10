@@ -9,9 +9,8 @@ async function bootstrap() {
   app.enableCors({
      origin: [
     'http://localhost:3000', // dev
-    'https://localhost:3000',
-    'https://myhub-client.vercel.app', // prod
-    /\.vercel\.app$/ // allow any vercel.app subdomain
+    'https://localhost:3000', // if you actually use https locally
+    'https://myhub-client.vercel.app', // production
   ],
     credentials: true,
   });
@@ -19,7 +18,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.use((req, res, next) => {
-    res.setHeader('same-origin-allow-popups');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     next();
   });
 
