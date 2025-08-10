@@ -7,14 +7,19 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: ['https://localhost:3000', 'https://myhub-client.vercel.app'],
+     origin: [
+    'http://localhost:3000', // dev
+    'https://localhost:3000',
+    'https://myhub-client.vercel.app', // prod
+    /\.vercel\.app$/ // allow any vercel.app subdomain
+  ],
     credentials: true,
   });
 
   app.use(cookieParser());
 
   app.use((req, res, next) => {
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    res.setHeader('same-origin-allow-popups');
     next();
   });
 
