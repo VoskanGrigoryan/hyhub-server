@@ -1,32 +1,40 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
-import 'dotenv/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const allowedOrigins =
-    process.env.NODE_ENV === 'production'
-      ? ['https://myhub-client.vercel.app']
-      : ['http://localhost:3000'];
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://yourfrontend.vercel.app',
+  ];
 
+  // Enable CORS before anything else
   app.enableCors({
     origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) cb(null, true);
-      else cb(new Error('Not allowed by CORS'));
+      if (!origin || allowedOrigins.includes(origin)) {
+        cb(null, true);
+      } else {
+        cb(new Error('Not allowed by CORS'));
+      }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  app.use(cookieParser());
+  // Explicit OPTIONS handling for Vercel's serverless env
+  app.getHttpAdapter().getInstance().options('*', (req, res) => {
+    res.sendStatus(200);
+  });
 
+  // Security headers (AFTER CORS)
   app.use((req, res, next) => {
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+    res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
     next();
   });
 
-  await app.listen(process.env.PORT ?? 4000);
+  await app.listen(process.env.PORT || 4000);
 }
 bootstrap();
