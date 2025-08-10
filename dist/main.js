@@ -2,31 +2,35 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
+const common_1 = require("@nestjs/common");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    app.useGlobalPipes(new common_1.ValidationPipe());
     const allowedOrigins = [
         'http://localhost:3000',
-        'https://yourfrontend.vercel.app',
+        'https://localhost:3000',
+        'https://myhub-client.vercel.app'
     ];
     app.enableCors({
-        origin: (origin, cb) => {
-            if (!origin || allowedOrigins.includes(origin)) {
-                cb(null, true);
-            }
-            else {
-                cb(new Error('Not allowed by CORS'));
-            }
+        origin: (origin, callback) => {
+            if (!origin)
+                return callback(null, true);
+            if (allowedOrigins.includes(origin))
+                return callback(null, true);
+            return callback(new Error('Not allowed by CORS'), false);
         },
         credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         allowedHeaders: ['Content-Type', 'Authorization'],
     });
-    app.getHttpAdapter().getInstance().options('*', (req, res) => {
-        res.sendStatus(200);
-    });
     app.use((req, res, next) => {
-        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-        res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+        if (req.method === 'OPTIONS') {
+            res.header('Access-Control-Allow-Origin', req.headers.origin || '');
+            res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,DELETE');
+            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+            res.header('Access-Control-Allow-Credentials', 'true');
+            return res.sendStatus(200);
+        }
         next();
     });
     await app.listen(process.env.PORT || 4000);

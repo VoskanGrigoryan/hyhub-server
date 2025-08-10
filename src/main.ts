@@ -1,40 +1,46 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { Request, Response } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Global validation
+  app.useGlobalPipes(new ValidationPipe());
+
+  // CORS setup (both localhost & prod)
   const allowedOrigins = [
     'http://localhost:3000',
-    'https://yourfrontend.vercel.app',
+    'https://localhost:3000',
+    'https://myhub-client.vercel.app'
   ];
 
-  // Enable CORS before anything else
   app.enableCors({
-    origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        cb(null, true);
-      } else {
-        cb(new Error('Not allowed by CORS'));
-      }
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error('Not allowed by CORS'), false);
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  // Explicit OPTIONS handling for Vercel's serverless env
-  app.getHttpAdapter().getInstance().options('*', (req, res) => {
-    res.sendStatus(200);
-  });
-
-  // Security headers (AFTER CORS)
-  app.use((req, res, next) => {
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-    res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  // Explicit OPTIONS handler for serverless/Vercel
+  app.use((req: Request, res: Response, next) => {
+    if (req.method === 'OPTIONS') {
+      res.header('Access-Control-Allow-Origin', req.headers.origin || '');
+      res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,DELETE');
+      res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      res.header('Access-Control-Allow-Credentials', 'true');
+      return res.sendStatus(200);
+    }
     next();
   });
 
   await app.listen(process.env.PORT || 4000);
 }
+
 bootstrap();
